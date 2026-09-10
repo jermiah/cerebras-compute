@@ -58,11 +58,31 @@ export default async function Home() {
             <section className="coupon coupon-reveal">
               <p className="signed-in">Welcome back, <strong>{attendee.email}</strong></p>
               <p className="coupon-label">Your reserved Codex credit</p>
-              {isLink ? (
-                <a className="code claim-link" href={claimHref} target="_blank" rel="noreferrer">Open claim link <span>↗</span></a>
-              ) : (
-                <div className="code">{rawCoupon}</div>
-              )}
+              <div className="code" style={{ display: "grid", gap: "12px", textAlign: "center", padding: "18px 14px", wordBreak: "break-all", fontSize: "clamp(13px, 1.8vw, 17px)", letterSpacing: "normal", userSelect: "all" }}>
+                <span style={{ fontWeight: 700, color: "var(--ink)", fontFamily: "ui-monospace, monospace" }}>{rawCoupon}</span>
+                {isLink && (
+                  <div>
+                    <a 
+                      className="primary-button" 
+                      href={claimHref} 
+                      target="_blank" 
+                      rel="noreferrer"
+                      style={{ 
+                        display: "inline-flex", 
+                        alignItems: "center", 
+                        justifyContent: "center", 
+                        gap: "6px", 
+                        padding: "10px 20px", 
+                        minHeight: "40px", 
+                        width: "auto", 
+                        textDecoration: "none" 
+                      }}
+                    >
+                      Open claim link <span>↗</span>
+                    </a>
+                  </div>
+                )}
+              </div>
               <p className="coupon-note">This {isLink ? "link" : "code"} is now reserved only for you. Keep it close.</p>
               <form action={logout}><button className="text-button">Not you? Sign out</button></form>
             </section>
