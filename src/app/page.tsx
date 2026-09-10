@@ -104,9 +104,93 @@ export default async function Home() {
         </aside>
       </section>
 
+      <section className="agenda-card" aria-label="Event schedule">
+        <div className="agenda-topline">
+          <span>RUN OF SHOW · DELHI EDITION</span>
+          <span>11:00 AM — 04:00 PM</span>
+        </div>
+        <div className="agenda-heading">
+          <span className="agenda-stamp">✦</span>
+          <div>
+            <p>Schedule</p>
+            <h2>Agenda for the day</h2>
+          </div>
+        </div>
+
+        <table className="agenda-table">
+          <thead>
+            <tr>
+              <th style={{ width: "190px" }}>Timing</th>
+              <th>Session & Details</th>
+              <th style={{ textAlign: "right" }}></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <span className="agenda-time">11:00 — 11:30 AM</span>
+              </td>
+              <td className="agenda-title">
+                <strong>Coffee + Warm Intro</strong>
+                <small>Doors open! Grab fresh coffee, settle in, and meet fellow builders.</small>
+              </td>
+              <td className="agenda-icon">☕</td>
+            </tr>
+            <tr>
+              <td>
+                <span className="agenda-time">11:30 — 12:00 PM</span>
+              </td>
+              <td className="agenda-title">
+                <strong>Short Demos & Codex Credits Drop</strong>
+                <small>Kick-off, lightning demos, Codex credit distribution, and agenda for the build sprint.</small>
+              </td>
+              <td className="agenda-icon">⚡</td>
+            </tr>
+            <tr>
+              <td>
+                <span className="agenda-time">12:00 — 12:30 PM</span>
+              </td>
+              <td className="agenda-title">
+                <strong>AI Model Showcase</strong>
+                <small>Live AI model walkthrough and technical demo.</small>
+              </td>
+              <td className="agenda-icon">🤖</td>
+            </tr>
+            <tr>
+              <td>
+                <span className="agenda-time">12:30 — 01:30 PM</span>
+              </td>
+              <td className="agenda-title">
+                <strong>Build Sprint & Lunch Break</strong>
+                <small>Burrito bowls on the house while you kick off hacking on big ideas.</small>
+              </td>
+              <td className="agenda-icon">🌯</td>
+            </tr>
+            <tr>
+              <td>
+                <span className="agenda-time">01:30 — 04:00 PM</span>
+              </td>
+              <td className="agenda-title">
+                <strong>Show & Tell + Open Networking</strong>
+                <small>Show off what got built, share feedback, grab a mojito, and connect.</small>
+              </td>
+              <td className="agenda-icon">✳</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div className="agenda-footer-note">
+          <span>⚡ <b>Tentative schedule</b> subject to live demo flow & hacking vibes.</span>
+          <span>Cafe Compute Delhi</span>
+        </div>
+      </section>
+
       <footer className="event-footer">
         <span>OPENAI × CAFE COMPUTE</span>
-        <span className="partner-lockup"><small>with</small><span className="cerebras-crop"><Image src="/cerebras-logo.png" alt="Cerebras" width={630} height={487} /></span></span>
+        <span className="partner-lockup">
+          <small>with</small>
+          <Image src="/cerebras-logo.png" alt="Cerebras" width={85} height={39} className="cerebras-logo" />
+        </span>
         <span>DELHI</span>
       </footer>
     </main>
