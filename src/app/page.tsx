@@ -38,6 +38,7 @@ export default async function Home() {
           <h1>{eventName}</h1>
           <p className="hero-intro">Make yourself at home. Grab a coffee as you arrive, then settle in for <em>Codex credits</em> and good ideas.</p>
           {description && <p className="event-description">{description}</p>}
+          <a className="slides-link" href="/slides">View the Cerebras presentation <span>↗</span></a>
           <div className="city-line" aria-label="Delhi to the world">
             <span>DEL</span><b>✦</b><span>Build</span><b>✦</b><span>Share</span>
           </div>
@@ -187,6 +188,43 @@ export default async function Home() {
         <div className="agenda-footer-note">
           <span>⚡ <b>Tentative schedule</b> subject to live demo flow & hacking vibes.</span>
           <span>Cafe Compute Delhi</span>
+        </div>
+      </section>
+
+      <section className="faq-card" aria-labelledby="faq-title">
+        <div className="faq-heading">
+          <span className="faq-stamp">?</span>
+          <div>
+            <p>Open questions</p>
+            <h2 id="faq-title">A few things people ask.</h2>
+          </div>
+        </div>
+        <p className="faq-intro">Bring the rest to the room—these are the useful starting points for the conversation.</p>
+        <div className="faq-list">
+          <details>
+            <summary><span>01</span><strong>What makes Cerebras different?</strong></summary>
+            <p>Cerebras is built around wafer-scale computing: instead of treating AI work as a collection of smaller accelerators, it brings a very large amount of compute, memory, and communication fabric together on one wafer-scale processor.</p>
+          </details>
+          <details>
+            <summary><span>02</span><strong>Why does Cerebras feel so fast?</strong></summary>
+            <p>It&apos;s not only about raw compute. AI workloads spend a great deal of time moving data, so keeping compute, memory, and communication close together can reduce that overhead and make responses feel more immediate.</p>
+          </details>
+          <details>
+            <summary><span>03</span><strong>Why does inference speed matter for agents?</strong></summary>
+            <p>Agents often work in a loop: reason, use a tool, observe, and reason again. Faster model steps leave more room in the same time budget for planning, verification, and better tool use—not just a quicker final answer.</p>
+          </details>
+          <details>
+            <summary><span>04</span><strong>How is Cerebras related to OpenAI?</strong></summary>
+            <p>They work at different layers of the stack. OpenAI develops models and products; Cerebras provides specialized AI compute and inference infrastructure. Cerebras also offers an API that is mostly compatible with OpenAI client libraries.</p>
+          </details>
+          <details>
+            <summary><span>05</span><strong>What&apos;s the simplest way to try it?</strong></summary>
+            <p>Start with a small project or an existing OpenAI-style application, point it at the Cerebras API, and test a real task. The best first experiment is something you can compare against your current workflow.</p>
+          </details>
+          <details>
+            <summary><span>06</span><strong>What should I benchmark?</strong></summary>
+            <p>Look beyond tokens per second: compare time to first token, end-to-end latency, quality on your real task, reliability under concurrency, and cost per successful outcome.</p>
+          </details>
         </div>
       </section>
 
