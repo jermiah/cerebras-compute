@@ -1,12 +1,20 @@
-# Cafe Compute Delhi — Coupon Portal
+# Cerebras Compute — Cerebras Paris
 
-A fast, simple invitation and credit claiming portal for Cafe Compute Delhi attendees.
+A fast, simple invitation and credit claiming portal for Cerebras Paris attendees.
 
 Attendees enter their registered email:
 - If approved, they receive an unused Codex credit code/claim link from the pool.
 - The code is locked permanently to their email and will never be given to anyone else.
 - Revisiting the site displays their same code.
 - No emails, no verification codes, no unnecessary friction.
+
+## Paris edition
+
+This is the Cerebras Paris adaptation of [shuklaji28/cafecompute](https://github.com/shuklaji28/cafecompute), with the original Git history retained.
+
+The existing credit-claiming flow, partner assets and Cerebras presentation are preserved. The agenda and menu are draft content inherited from the source event; confirm the Paris date, venue, sessions, catering and credit offering before launch. Displayed schedule times use Paris local time (`Europe/Paris`).
+
+The home page uses `Cerebras Paris` and a Paris description by default. If your database has an `events.settings` table, its `event_name` and `description` values override those defaults; update these values for the Paris event when connecting an existing database.
 
 ## Database (Supabase)
 

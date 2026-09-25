@@ -8,8 +8,8 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const [eventName, description] = await Promise.all([
-    getSetting("event_name", "Cafe Compute Delhi"),
-    getSetting("description", "A Delhi coffee break for people who make things happen."),
+    getSetting("event_name", "Cerebras Paris"),
+    getSetting("description", "A Paris coffee break for people who make things happen."),
   ]);
   const email = await getAttendeeEmail();
   const attendee = email ? await findAttendee(email) : undefined;
@@ -26,7 +26,7 @@ export default async function Home() {
         <span className="partner-logo partner-logo-cerebras">
           <Image src="/cerebras-logo.png" alt="Cerebras" width={674} height={296} priority />
         </span>
-        <span className="wordmark">cafe compute <small>Delhi · India</small></span>
+        <span className="wordmark">cerebras paris <small>Paris · France</small></span>
         <span className="partner-logo partner-logo-openai">
           <Image src="/openai-logo.png" alt="OpenAI" width={270} height={135} priority />
         </span>
@@ -39,15 +39,15 @@ export default async function Home() {
           <p className="hero-intro">Make yourself at home. Grab a coffee as you arrive, then settle in for <em>Codex credits</em> and good ideas.</p>
           {description && <p className="event-description">{description}</p>}
           <a className="slides-link" href="/slides">View the Cerebras presentation <span>↗</span></a>
-          <div className="city-line" aria-label="Delhi to the world">
-            <span>DEL</span><b>✦</b><span>Build</span><b>✦</b><span>Share</span>
+          <div className="city-line" aria-label="Paris to the world">
+            <span>PAR</span><b>✦</b><span>Build</span><b>✦</b><span>Share</span>
           </div>
         </div>
 
         <div className="coffee-scene">
           <div className="sun" />
           <div className="orbit orbit-one">✦</div><div className="orbit orbit-two">☕</div><div className="orbit orbit-three">✦</div>
-          <div className="frog-frame"><Image className="frog-illustration" src="/cafe-compute-frog.png" alt="A cheerful frog enjoying coffee at Cafe Compute" width={1254} height={1254} priority /></div>
+          <div className="frog-frame"><Image className="frog-illustration" src="/cafe-compute-frog.png" alt="A cheerful frog enjoying coffee at Cerebras Paris" width={1254} height={1254} priority /></div>
           <div className="speech-bubble">did someone say<br /><strong>free credits?</strong></div>
           <div className="vibe-stamp"><span>✓</span> Official vibe<br />inspector</div>
           <div className="bean bean-one" /><div className="bean bean-two" /><div className="bean bean-three" />
@@ -97,7 +97,7 @@ export default async function Home() {
         </div>
 
         <aside className="menu-panel">
-          <p className="menu-kicker">COMPLIMENTARY LUNCH & DRINKS</p>
+          <p className="menu-kicker">SAMPLE MENU · TO BE CONFIRMED</p>
           <h2>Good ideas need good fuel.</h2>
           <ul className="menu-list">
             <li><span className="menu-number">01</span><div><strong>Burrito bowl</strong><small>Choose one bowl for lunch.</small></div><b>🌯</b></li>
@@ -112,8 +112,8 @@ export default async function Home() {
 
       <section className="agenda-card" aria-label="Event schedule">
         <div className="agenda-topline">
-          <span>RUN OF SHOW · DELHI EDITION</span>
-          <span>11:30 AM — 04:00 PM</span>
+          <span>RUN OF SHOW · PARIS EDITION</span>
+          <span>11:30 — 16:00 · PARIS TIME</span>
         </div>
         <div className="agenda-heading">
           <span className="agenda-stamp">✦</span>
@@ -186,8 +186,8 @@ export default async function Home() {
         </table>
 
         <div className="agenda-footer-note">
-          <span>⚡ <b>Tentative schedule</b> subject to live demo flow & hacking vibes.</span>
-          <span>Cafe Compute Delhi</span>
+          <span>⚡ <b>Draft Paris schedule</b> · Date, venue, sessions and catering to be confirmed.</span>
+          <span>Cerebras Paris</span>
         </div>
       </section>
 
@@ -229,12 +229,12 @@ export default async function Home() {
       </section>
 
       <footer className="event-footer">
-        <span>OPENAI × CAFE COMPUTE</span>
+        <span>CEREBRAS PARIS</span>
         <span className="partner-lockup">
           <small>with</small>
           <Image src="/cerebras-logo.png" alt="Cerebras" width={85} height={39} className="cerebras-logo" />
         </span>
-        <span>DELHI</span>
+        <span>PARIS</span>
       </footer>
     </main>
   );
