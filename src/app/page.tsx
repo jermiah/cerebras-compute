@@ -7,10 +7,10 @@ export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const [eventName, description] = await Promise.all([
-    getSetting("event_name", "Cerebras Paris"),
+    getSetting("event_name", "Cerebras Café Compute | Paris"),
     getSetting(
       "description",
-      "A Paris coffee break for people who make things happen.",
+      "An exclusive evening for AI engineers, researchers, founders, and builders to explore, experiment, and build with some of the latest AI technologies.",
     ),
   ]);
   const email = await getAttendeeEmail();
@@ -42,7 +42,7 @@ export default async function Home() {
           />
         </span>
         <span className="wordmark">
-          cerebras paris <small>Paris · France</small>
+          café compute <small>Paris · France</small>
         </span>
         <span className="partner-logo partner-logo-openai">
           <Image
@@ -62,10 +62,53 @@ export default async function Home() {
           </p>
           <h1>{eventName}</h1>
           <p className="hero-intro">
-            Make yourself at home. Grab a coffee as you arrive, then settle in
-            for <em>Codex credits</em> and good ideas.
+            <strong>$15,500 in AI Compute Credits for Builders</strong>
+          </p>
+          <p className="event-description">
+            OpenAI + Cerebras credits for the first 75 registered participants.{" "}
+            <strong>
+              3 selected builders will receive OpenAI Codex Pro access.
+            </strong>
           </p>
           {description && <p className="event-description">{description}</p>}
+          <div className="event-organizers">
+            <p>
+              Organized by{" "}
+              <a
+                href="https://www.cerebras.ai/?utm_source=luma"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Cerebras
+              </a>{" "}
+              and{" "}
+              <a
+                href="https://openai.com/?utm_source=luma"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                OpenAI
+              </a>
+            </p>
+            <p>
+              Co-hosted by{" "}
+              <a
+                href="https://www.aicollective.com/?utm_source=luma"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                AI Collective Paris
+              </a>{" "}
+              and{" "}
+              <a
+                href="https://www.quicksort.fr/?utm_source=luma"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                QuickSort
+              </a>
+            </p>
+          </div>
           <a className="slides-link" href="/slides">
             View the Cerebras presentation <span>↗</span>
           </a>
@@ -131,54 +174,49 @@ export default async function Home() {
         </div>
 
         <aside className="menu-panel">
-          <p className="menu-kicker">SAMPLE MENU · TO BE CONFIRMED</p>
-          <h2>Good ideas need good fuel.</h2>
+          <p className="menu-kicker">AN EVENING FOR BUILDERS</p>
+          <h2>
+            Bring your laptop.
+            <br />
+            Build something together.
+          </h2>
           <ul className="menu-list">
             <li>
-              <span className="menu-number">01</span>
+              <span aria-hidden="true">☕</span>
               <div>
-                <strong>Burrito bowl</strong>
-                <small>Choose one bowl for lunch.</small>
+                <strong>Food, drinks & conversation</strong>
+                <small>
+                  Doors open at 6:45 PM. Meet fellow builders before the demos
+                  begin.
+                </small>
               </div>
-              <b>🌯</b>
             </li>
             <li>
-              <span className="menu-number">02</span>
+              <span aria-hidden="true">⚡</span>
               <div>
-                <strong>Diet Coke</strong>
-                <small>Cold, crisp, classic.</small>
+                <strong>Live demos & technical discussions</strong>
+                <small>
+                  Explore Cerebras inference, OpenAI Codex and QuickSort
+                  research.
+                </small>
               </div>
-              <b>◌</b>
             </li>
             <li>
-              <span className="menu-number">03</span>
+              <span aria-hidden="true">⌘</span>
               <div>
-                <strong>Mojito</strong>
-                <small>Minty reset, zero rush.</small>
+                <strong>Hands-on building</strong>
+                <small>
+                  Experiment with agents, coding tools, voice AI or your own
+                  ideas alongside engineers in the room.
+                </small>
               </div>
-              <b>✳</b>
-            </li>
-            <li>
-              <span className="menu-number">04</span>
-              <div>
-                <strong>Iced latte</strong>
-                <small>Chilled coffee, café-style.</small>
-              </div>
-              <b>🧊</b>
-            </li>
-            <li>
-              <span className="menu-number">05</span>
-              <div>
-                <strong>Cold coffee</strong>
-                <small>Cool fuel for the build.</small>
-              </div>
-              <b>☕</b>
             </li>
           </ul>
           <p className="menu-footer">
-            <strong>Coffee will be ready as you arrive.</strong> For lunch,
-            please pick one bowl and one drink so there&apos;s enough for
-            everyone.
+            A focused, interactive builder session designed around live
+            experimentation, technical conversations and collaboration. Seats
+            are intentionally limited to keep the experience interactive and
+            conversation-driven.
           </p>
         </aside>
       </section>
@@ -186,13 +224,13 @@ export default async function Home() {
       <section className="agenda-card" aria-label="Event schedule">
         <div className="agenda-topline">
           <span>RUN OF SHOW · PARIS EDITION</span>
-          <span>11:30 — 16:00 · PARIS TIME</span>
+          <span>6:45 PM — 9:00 PM · PARIS TIME</span>
         </div>
         <div className="agenda-heading">
           <span className="agenda-stamp">✦</span>
           <div>
             <p>Schedule</p>
-            <h2>Agenda for the day</h2>
+            <h2>Agenda for the evening</h2>
           </div>
         </div>
 
@@ -207,79 +245,136 @@ export default async function Home() {
           <tbody>
             <tr>
               <td>
-                <span className="agenda-time">11:30 AM — 12:00 PM</span>
+                <span className="agenda-time">6:45 PM</span>
               </td>
               <td className="agenda-title">
-                <strong>Welcome, Intro & Cerebras Showcase</strong>
+                <strong>Doors Open</strong>
                 <small>
-                  Grab a coffee, settle in, and see something built with
-                  Cerebras. We&apos;ll also invite everyone to try Cerebras Qwen
-                  3.8 27B for development during the event.
+                  Food, drinks, and networking with fellow builders.
                 </small>
               </td>
-              <td className="agenda-icon">☕</td>
+              <td className="agenda-icon" aria-hidden="true">
+                ☕
+              </td>
             </tr>
             <tr>
               <td>
-                <span className="agenda-time">12:00 — 12:30 PM</span>
+                <span className="agenda-time">7:00 PM</span>
               </td>
               <td className="agenda-title">
-                <strong>Virtual Session with the Cerebras Team</strong>
+                <strong>Welcome &amp; Introduction</strong>
                 <small>
-                  Join a live virtual conversation with the Cerebras team, ask
-                  questions, and get inspired for the build.
+                  Opening remarks and introduction to Cerebras, OpenAI, AI
+                  Collective, and QuickSort with our humanoid.
                 </small>
               </td>
-              <td className="agenda-icon">⚡</td>
+              <td className="agenda-icon" aria-hidden="true">
+                ✦
+              </td>
             </tr>
             <tr>
               <td>
-                <span className="agenda-time">12:30 — 01:30 PM</span>
+                <span className="agenda-time">7:15 PM</span>
               </td>
               <td className="agenda-title">
-                <strong>Lunch & Build Together</strong>
+                <strong>Cerebras Demo + Live Q&amp;A</strong>
                 <small>
-                  Pick up your bowl and one drink, then use the hour to build,
-                  explore Cerebras Qwen 3.8 27B, and meet fellow makers.
+                  Explore Cerebras inference, live demos, and what ultra-fast
+                  inference enables for AI applications.
+                </small>
+                <small className="agenda-speaker">
+                  Dmitry Gaynullin, Cerebras · 20 minutes
                 </small>
               </td>
-              <td className="agenda-icon">🤖</td>
+              <td className="agenda-icon" aria-hidden="true">
+                ⚡
+              </td>
             </tr>
             <tr>
               <td>
-                <span className="agenda-time">01:30 — 02:30 PM</span>
+                <span className="agenda-time">7:35 PM</span>
               </td>
               <td className="agenda-title">
-                <strong>Community Lightning Demos</strong>
+                <strong>OpenAI Demo + Q&amp;A</strong>
                 <small>
-                  Short demos from the community: share what you&apos;re making,
-                  what you learned, or what surprised you.
+                  Live demonstration and discussion around building with Codex.
+                </small>
+                <small className="agenda-speaker">
+                  OpenAI speaker · 15 minutes
                 </small>
               </td>
-              <td className="agenda-icon">🌯</td>
+              <td className="agenda-icon" aria-hidden="true">
+                ⌘
+              </td>
             </tr>
             <tr>
               <td>
-                <span className="agenda-time">02:30 — 04:00 PM</span>
+                <span className="agenda-time">7:50 PM</span>
               </td>
               <td className="agenda-title">
-                <strong>Open Build, Show & Tell + Networking</strong>
+                <strong>QuickSort Research Spotlight</strong>
                 <small>
-                  Keep building, share feedback, and connect with the people
-                  turning ideas into demos.
+                  A short technical session highlighting AI research on
+                  compressing KV cache.
+                </small>
+                <small className="agenda-speaker">10 minutes</small>
+              </td>
+              <td className="agenda-icon" aria-hidden="true">
+                ✳
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span className="agenda-time">8:00 PM</span>
+              </td>
+              <td className="agenda-title">
+                <strong>Build Time</strong>
+                <small>
+                  Bring out your laptop and start building. Experiment with
+                  Cerebras, OpenAI, agents, coding tools, voice AI, or your own
+                  ideas alongside other engineers in the room.
                 </small>
               </td>
-              <td className="agenda-icon">✳</td>
+              <td className="agenda-icon" aria-hidden="true">
+                ↗
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span className="agenda-time">8:45 PM</span>
+              </td>
+              <td className="agenda-title">
+                <strong>Open Networking</strong>
+                <small>
+                  Connect with speakers, engineers, founders, and fellow
+                  builders.
+                </small>
+              </td>
+              <td className="agenda-icon" aria-hidden="true">
+                ✦
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <span className="agenda-time">9:00 PM</span>
+              </td>
+              <td className="agenda-title">
+                <strong>Event Ends</strong>
+                <small>Thank you for building with us.</small>
+              </td>
+              <td className="agenda-icon" aria-hidden="true">
+                ☕
+              </td>
             </tr>
           </tbody>
         </table>
 
         <div className="agenda-footer-note">
           <span>
-            ⚡ <b>Draft Paris schedule</b> · Date, venue, sessions and catering
-            to be confirmed.
+            All times are local to Paris. Bring your laptop for the build
+            session.
           </span>
-          <span>Cerebras Paris</span>
+          <span>Cerebras Café Compute | Paris</span>
         </div>
       </section>
 
@@ -371,7 +466,7 @@ export default async function Home() {
       </section>
 
       <footer className="event-footer">
-        <span>CEREBRAS PARIS</span>
+        <span>CEREBRAS CAFÉ COMPUTE | PARIS</span>
         <span className="partner-lockup">
           <small>with</small>
           <Image

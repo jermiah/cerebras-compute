@@ -490,3 +490,29 @@ textarea:focus-visible {
     font-size: 13px;
   }
 }
+
+.event-organizers {
+  margin: 22px 0;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.event-organizers p {
+  margin: 6px 0;
+}
+.event-organizers a {
+  color: inherit;
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+.agenda-speaker {
+  font-weight: 700;
+  margin-top: 6px;
+}
+.hero-copy h1 {
+  font-size: clamp(48px, 6.5vw, 94px);
+}
+@media (max-width: 760px) {
+  .hero-copy h1 {
+    font-size: clamp(43px, 12vw, 70px);
+  }
+}
