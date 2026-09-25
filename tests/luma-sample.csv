@@ -1,0 +1,5 @@
+name,email,checked_in_at
+"Camille, Test",camille@example.com,2026-09-25T10:00:00Z
+Alex Martin,alex@example.com,2026-09-25T10:00:00Z
+Not Arrived,not-arrived@example.com,
+Duplicate,CAMILLE@example.com,yes

@@ -21,7 +21,3 @@ CREATE TABLE IF NOT EXISTS events.settings (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
-
-INSERT INTO events.attendees (email)
-VALUES ('thisisshresth@gmail.com')
-ON CONFLICT (email) DO NOTHING;
