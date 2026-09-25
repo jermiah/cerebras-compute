@@ -57,6 +57,13 @@ export async function adminLogin(
       return { error: "Incorrect coordinator password." };
     await setAdminSession();
   } catch (e) {
+    const code = e && typeof e === "object" && "code" in e ? String(e.code) : "unknown";
+    console.error("Coordinator login failed", {
+      code,
+      sessionSecretConfigured: (process.env.SESSION_SECRET?.length ?? 0) >= 32,
+      databaseConfigured: !!process.env.DATABASE_URL,
+      connectionTimeout: e instanceof Error && /timeout|terminated/.test(e.message),
+    });
     return failure(e);
   }
   redirect("/admin");
