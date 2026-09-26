@@ -19,7 +19,7 @@ Open `/admin` on a phone or computer and sign in with `ADMIN_PASSWORD`.
 
 - **Guests & approvals:** Search and filter guests, approve or reject requests, or add emails directly. For a different email, fill **Email to approve** with the new email and **Original attendee email** with the existing imported email. Both then share one attendee and one reward. A record that already claimed cannot be merged into another attendee.
 - **Import Luma CSV:** In Luma, open Manage → Guests → Checked In → Download CSV → Download Filtered Guests. Upload the CSV, map email/name/check-in columns, preview the results, then confirm. An unfiltered export works if it contains check-in evidence. If no check-in column exists, explicitly confirm that the export was already filtered to checked-in guests.
-- **Credit pool:** Paste one code or full HTTP(S) credit URL per line, or upload a plain-text file. Existing codes and legacy claimed codes are skipped. These are credit rewards, separate from Luma ticket discount coupons.
+- **Credit pool:** Upload a CSV with one column named `link`, containing one full HTTP(S) credit URL per row. Download the header-only template from the portal and add your real links. Limits: 500 KB and 5,000 rows. Invalid rows reject the entire upload; duplicate and already assigned links are skipped.
 - **Community links:** Edit the Cerebras Discord and Quicksort LinkedIn links. Both supplied links are seeded by the migration. Missing links lock the corresponding step.
 - **Activity:** See recent imports, approvals, rejections, self-confirmations and claims. No reward codes are recorded in the activity log.
 

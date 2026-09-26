@@ -62,7 +62,6 @@ export default function Dashboard(props: Props) {
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [original, setOriginal] = useState("");
-  const [codes, setCodes] = useState("");
   const [links, setLinks] = useState(props.links);
   useEffect(() => {
     const timer = setInterval(() => router.refresh(), 15000);
@@ -459,47 +458,41 @@ export default function Dashboard(props: Props) {
         <section className="admin-card">
           <h2>Stock the credit pool.</h2>
           <p>
-            Paste one coupon code or full credit URL per line, or choose a
-            plain-text file. These are the rewards issued by this portal, not
-            Luma ticket-discount coupons.
+            Upload a CSV with one column named <strong>link</strong> and one
+            full credit URL per row. Each unique link adds one credit to the
+            pool.
+          </p>
+          <p>
+            <a href="/credit-links-template.csv" download>
+              Download CSV template
+            </a>
           </p>
           <form
             onSubmit={(e) => {
               e.preventDefault();
+              const form = e.currentTarget;
+              const data = new FormData(form);
               run(
-                () => uploadCredits(codes),
-                () => setCodes(""),
+                () => uploadCredits(data),
+                () => form.reset(),
               );
             }}
           >
-            <label>
-              Credit codes or links
-              <textarea
-                rows={10}
-                required
-                value={codes}
-                maxLength={500000}
-                onChange={(e) => setCodes(e.target.value)}
-                placeholder={
-                  "https://example.com/claim/unique-code\nANOTHER-UNIQUE-CODE"
-                }
-              />
-            </label>
-            <label>
-              Or load a text file
+            <label className="upload-box">
+              Choose credit links CSV
               <input
+                name="credits"
                 type="file"
-                accept=".txt,text/plain"
-                onChange={async (e) => {
-                  const f = e.target.files?.[0];
-                  if (f && f.size <= 500000) setCodes(await f.text());
-                  else if (f)
-                    setNotice({ error: "File must be under 500 KB." });
-                }}
+                accept=".csv,text/csv"
+                required
+                disabled={pending}
               />
+              <small>
+                Up to 500 KB / 5,000 links. Duplicate links are skipped.
+              </small>
             </label>
             <button className="primary-button" disabled={pending}>
-              {pending ? "Adding…" : "Add credits →"}
+              {pending ? "Uploading…" : "Upload credits CSV →"}
             </button>
           </form>
         </section>

@@ -16,7 +16,7 @@ import {
   validCommunityLink,
   STEPS,
 } from "@/lib/portal";
-import { previewCsv, type CsvMapping } from "@/lib/csv";
+import { previewCsv, readCreditCsv, type CsvMapping } from "@/lib/csv";
 import { PortalError } from "@/lib/store";
 export type AdminResult = { error?: string; message?: string };
 function failure(error: unknown): AdminResult {
@@ -57,12 +57,14 @@ export async function adminLogin(
       return { error: "Incorrect coordinator password." };
     await setAdminSession();
   } catch (e) {
-    const code = e && typeof e === "object" && "code" in e ? String(e.code) : "unknown";
+    const code =
+      e && typeof e === "object" && "code" in e ? String(e.code) : "unknown";
     console.error("Coordinator login failed", {
       code,
       sessionSecretConfigured: (process.env.SESSION_SECRET?.length ?? 0) >= 32,
       databaseConfigured: !!process.env.DATABASE_URL,
-      connectionTimeout: e instanceof Error && /timeout|terminated/.test(e.message),
+      connectionTimeout:
+        e instanceof Error && /timeout|terminated/.test(e.message),
     });
     return failure(e);
   }
@@ -135,32 +137,23 @@ export async function rejectGuest(email: string): Promise<AdminResult> {
     return failure(e);
   }
 }
-export async function uploadCredits(text: string): Promise<AdminResult> {
+export async function uploadCredits(form: FormData): Promise<AdminResult> {
   await requireAdmin();
-  if (text.length > 500000)
-    return { error: "Keep the credit list under 500 KB." };
-  const codes = [
-    ...new Set(
-      text
-        .split(/\r?\n/)
-        .map((s) => s.trim())
-        .filter(Boolean),
-    ),
-  ];
-  if (
-    !codes.length ||
-    codes.length > 5000 ||
-    codes.some((c) => c.length > 2000)
-  )
-    return {
-      error:
-        "Add 1–5,000 codes or links, one per line, with at most 2,000 characters each.",
-    };
+  const file = form.get("credits");
+  if (!(file instanceof File) || !file.name.toLowerCase().endsWith(".csv"))
+    return { error: "Choose a CSV file containing credit links." };
+  if (file.size > 500000) return { error: "Choose a CSV smaller than 500 KB." };
+  let links: string[];
   try {
-    const added = await store.addCredits(codes);
+    links = readCreditCsv(await file.text());
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Unable to read CSV." };
+  }
+  try {
+    const added = await store.addCredits(links);
     refresh();
     return {
-      message: `${added} credits added. Duplicates and already assigned codes were skipped.`,
+      message: `${added} credit links added. Duplicate and already assigned links were skipped.`,
     };
   } catch (e) {
     return failure(e);

@@ -78,3 +78,40 @@ export function previewCsv(text: string, mapping: CsvMapping) {
     duplicates,
   };
 }
+
+export function readCreditCsv(text: string): string[] {
+  if (new TextEncoder().encode(text).length > 500_000)
+    throw new Error("Choose a CSV smaller than 500 KB.");
+  const result = Papa.parse<string[]>(text.replace(/^\uFEFF/, ""), {
+    delimiter: ",",
+    skipEmptyLines: "greedy",
+  });
+  if (result.errors.length || result.data.some((row) => row.length !== 1))
+    throw new Error(
+      "Use a CSV with one column named link and one credit URL per row.",
+    );
+  const [header, ...rows] = result.data;
+  if (header?.[0]?.trim().toLowerCase() !== "link")
+    throw new Error("The first row must be the column heading link.");
+  if (!rows.length || rows.length > 5000)
+    throw new Error("Upload between 1 and 5,000 credit links.");
+  const links = rows.map(([value], index) => {
+    const link = value.trim();
+    try {
+      const url = new URL(link);
+      if (
+        link.length > 2000 ||
+        !["https:", "http:"].includes(url.protocol) ||
+        url.username ||
+        url.password
+      )
+        throw new Error();
+    } catch {
+      throw new Error(
+        `Row ${index + 2}: enter a full HTTP or HTTPS credit URL. No credits were added.`,
+      );
+    }
+    return link;
+  });
+  return [...new Set(links)];
+}
