@@ -40,6 +40,12 @@ before(async () => {
       "utf8",
     ),
   );
+  await pool.query(
+    await readFile(
+      "supabase/migrations/20260926173000_credit_pairs.sql",
+      "utf8",
+    ),
+  );
   store = createStore(pool);
 });
 after(async () => {
@@ -243,5 +249,53 @@ test("private event tables have RLS and migration can be safely reapplied", asyn
   assert.equal(
     (await store.findAttendee("new@example.com"))?.status,
     "rejected",
+  );
+});
+
+test("paired credits import atomically and stay together across concurrent claims", async () => {
+  const pairs = [
+    { codex: "https://example.com/codex1", api: "https://example.com/api1" },
+    { codex: "https://example.com/codex2", api: "https://example.com/api2" },
+  ];
+  assert.equal(await store.addCreditPairs(pairs), 2);
+  assert.equal(await store.addCreditPairs(pairs), 0);
+  await assert.rejects(
+    store.addCreditPairs([
+      {
+        codex: "https://example.com/rollback",
+        api: "https://example.com/rollback-api",
+      },
+      { codex: "https://example.com/other", api: pairs[0].api },
+    ]),
+  );
+  assert.equal(
+    (
+      await pool.query(
+        "SELECT 1 FROM events.credits WHERE code='https://example.com/rollback'",
+      )
+    ).rowCount,
+    0,
+  );
+  // Exhaust legacy single rewards so these claims select the new pair inventory.
+  await pool.query(
+    "UPDATE events.credits SET assigned_to='legacy@example.com' WHERE code=(SELECT code FROM events.credits WHERE assigned_to IS NULL AND api_link IS NULL LIMIT 1)",
+  );
+  await store.approve("pair1@example.com", "Pair One");
+  await store.approve("pair2@example.com", "Pair Two");
+  await pool.query(
+    "UPDATE events.attendees SET community_step=2 WHERE email IN ('pair1@example.com','pair2@example.com')",
+  );
+  const claimed = await Promise.all([
+    store.claimCoupon("pair1@example.com"),
+    store.claimCoupon("pair1@example.com"),
+    store.claimCoupon("pair2@example.com"),
+  ]);
+  assert.equal(claimed[0].coupon, claimed[1].coupon);
+  assert.notEqual(claimed[0].coupon, claimed[2].coupon);
+  for (const a of claimed)
+    assert.equal(a.api_link, pairs.find((p) => p.codex === a.coupon)?.api);
+  assert.equal(
+    (await store.findAttendee("pair1@example.com")).api_link,
+    claimed[0].api_link,
   );
 });

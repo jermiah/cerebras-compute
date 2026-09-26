@@ -128,6 +128,7 @@ export default function ClaimPortal({
     );
   if (attendee.coupon) {
     const href = creditHref(attendee.coupon);
+    const apiHref = attendee.api_link ? creditHref(attendee.api_link) : null;
     return (
       <section className="claim-status">
         <span className="status-pill">Credit reserved</span>
@@ -144,7 +145,17 @@ export default function ClaimPortal({
             rel="noopener noreferrer"
             className="primary-button"
           >
-            Open credit link ↗
+            {apiHref ? "Open Codex link ↗" : "Open credit link ↗"}
+          </a>
+        )}
+        {apiHref && (
+          <a
+            href={apiHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="primary-button"
+          >
+            Open API link ↗
           </a>
         )}
         {signout}
@@ -256,8 +267,8 @@ export default function ClaimPortal({
           <div className="step-detail">
             <h3>You’re all set.</h3>
             <p>
-              Claim your reserved code or link. One reward per attendee, even if
-              you change emails.
+              Claim your Codex and API links together. One reward pair per
+              attendee, even if you change emails.
             </p>
             <button
               className="primary-button"

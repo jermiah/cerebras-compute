@@ -1,4 +1,5 @@
 "use server";
+import { readCreditWorkbook, type CreditPair } from "@/lib/credit-workbook";
 import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -16,7 +17,7 @@ import {
   validCommunityLink,
   STEPS,
 } from "@/lib/portal";
-import { previewCsv, readCreditCsv, type CsvMapping } from "@/lib/csv";
+import { previewCsv, type CsvMapping } from "@/lib/csv";
 import { PortalError } from "@/lib/store";
 export type AdminResult = { error?: string; message?: string };
 function failure(error: unknown): AdminResult {
@@ -140,20 +141,23 @@ export async function rejectGuest(email: string): Promise<AdminResult> {
 export async function uploadCredits(form: FormData): Promise<AdminResult> {
   await requireAdmin();
   const file = form.get("credits");
-  if (!(file instanceof File) || !file.name.toLowerCase().endsWith(".csv"))
-    return { error: "Choose a CSV file containing credit links." };
-  if (file.size > 500000) return { error: "Choose a CSV smaller than 500 KB." };
-  let links: string[];
+  if (!(file instanceof File) || !file.name.toLowerCase().endsWith(".xlsx"))
+    return { error: "Choose an Excel (.xlsx) file with Codex and API links." };
+  if (file.size > 500000)
+    return { error: "Choose an Excel file smaller than 500 KB." };
+  let links: CreditPair[];
   try {
-    links = readCreditCsv(await file.text());
+    links = await readCreditWorkbook(await file.arrayBuffer());
   } catch (e) {
-    return { error: e instanceof Error ? e.message : "Unable to read CSV." };
+    return {
+      error: e instanceof Error ? e.message : "Unable to read Excel file.",
+    };
   }
   try {
-    const added = await store.addCredits(links);
+    const added = await store.addCreditPairs(links);
     refresh();
     return {
-      message: `${added} credit links added. Duplicate and already assigned links were skipped.`,
+      message: `${added} reward pairs added. Each attendee receives both links; existing pairs were skipped.`,
     };
   } catch (e) {
     return failure(e);

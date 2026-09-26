@@ -458,14 +458,14 @@ export default function Dashboard(props: Props) {
         <section className="admin-card">
           <h2>Stock the credit pool.</h2>
           <p>
-            Upload a CSV with one column named <strong>link</strong> and one
-            full credit URL per row. Each unique link adds one credit to the
-            pool.
+            Upload one Excel (.xlsx) file with two columns:{" "}
+            <strong>Codex links</strong> in column A and{" "}
+            <strong>API links</strong> in column B. Each row supplies both links
+            to one attendee.
           </p>
           <p>
-            <a href="/credit-links-template.csv" download>
-              Download CSV template
-            </a>
+            Use those column headings in the first row, then add one pair of
+            full URLs per row.
           </p>
           <form
             onSubmit={(e) => {
@@ -479,20 +479,21 @@ export default function Dashboard(props: Props) {
             }}
           >
             <label className="upload-box">
-              Choose credit links CSV
+              Choose Codex + API Excel file
               <input
                 name="credits"
                 type="file"
-                accept=".csv,text/csv"
+                accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 required
                 disabled={pending}
               />
               <small>
-                Up to 500 KB / 5,000 links. Duplicate links are skipped.
+                Up to 500 KB / 5,000 pairs. Both links are required in every
+                row.
               </small>
             </label>
             <button className="primary-button" disabled={pending}>
-              {pending ? "Uploading…" : "Upload credits CSV →"}
+              {pending ? "Uploading…" : "Upload credit pairs →"}
             </button>
           </form>
         </section>

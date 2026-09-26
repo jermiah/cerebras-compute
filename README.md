@@ -19,7 +19,7 @@ Open `/admin` on a phone or computer and sign in with `ADMIN_PASSWORD`.
 
 - **Guests & approvals:** Search and filter guests, approve or reject requests, or add emails directly. For a different email, fill **Email to approve** with the new email and **Original attendee email** with the existing imported email. Both then share one attendee and one reward. A record that already claimed cannot be merged into another attendee.
 - **Import Luma CSV:** In Luma, open Manage → Guests → Checked In → Download CSV → Download Filtered Guests. Upload the CSV, map email/name/check-in columns, preview the results, then confirm. An unfiltered export works if it contains check-in evidence. If no check-in column exists, explicitly confirm that the export was already filtered to checked-in guests.
-- **Credit pool:** Upload a CSV with one column named `link`, containing one full HTTP(S) credit URL per row. Download the header-only template from the portal and add your real links. Limits: 500 KB and 5,000 rows. Invalid rows reject the entire upload; duplicate and already assigned links are skipped.
+- **Credit pool:** Upload one `.xlsx` workbook with one worksheet. Column A is `Codex links`, column B is `API links`. Each row contains a pair of full HTTP(S) URLs for one attendee. Both links are assigned atomically and shown separately after claiming. Limits: 500 KB / 5,000 pairs. Incomplete rows, formulas and links reused in different pairs reject the entire upload; identical existing pairs are skipped. Existing single-link rewards and claims are preserved.
 - **Community links:** Edit the Cerebras Discord and Quicksort LinkedIn links. Both supplied links are seeded by the migration. Missing links lock the corresponding step.
 - **Activity:** See recent imports, approvals, rejections, self-confirmations and claims. No reward codes are recorded in the activity log.
 
@@ -33,8 +33,9 @@ For a new database, run these files in order in the SQL editor:
 
 1. `supabase/events-schema.sql`
 2. `supabase/migrations/20260925191020_attendee_portal.sql`
+3. `supabase/migrations/20260926173000_credit_pairs.sql`
 
-For an existing installation with `events.attendees`, `events.credits` and `events.settings`, run only the migration. It preserves existing approvals and claims. Back up the existing event database first. Imported registration data stays in the database, never in this public repository.
+For an existing installation with `events.attendees`, `events.credits` and `events.settings`, run only migrations not yet applied. It preserves existing approvals and claims. Back up the existing event database first. Imported registration data stays in the database, never in this public repository.
 
 Tables live in a private `events` schema, with RLS enabled and no client policies. The server connection must use a trusted Postgres role with `BYPASSRLS` (the Supabase Postgres connection is suitable). Keep this schema out of the Data API. Never put database credentials in a `NEXT_PUBLIC_` variable.
 

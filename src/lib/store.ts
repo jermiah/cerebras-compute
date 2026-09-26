@@ -6,6 +6,7 @@ export type Attendee = {
   name: string;
   status: "pending" | "approved" | "rejected";
   coupon: string | null;
+  api_link?: string | null;
   claimed_at: string | null;
   community_step: number;
   opened_step: number;
@@ -205,8 +206,8 @@ export function createStore(pool: Pool) {
       if (a.coupon) return a;
       if (a.community_step !== STEPS.length)
         throw new PortalError("Complete all community steps before claiming.");
-      const credit = await c.query<{ code: string }>(
-        "SELECT code FROM events.credits WHERE assigned_to IS NULL ORDER BY created_at,code FOR UPDATE SKIP LOCKED LIMIT 1",
+      const credit = await c.query<{ code: string; api_link: string | null }>(
+        "SELECT code,api_link FROM events.credits WHERE assigned_to IS NULL ORDER BY created_at,code FOR UPDATE SKIP LOCKED LIMIT 1",
       );
       if (!credit.rows[0])
         throw new PortalError(
@@ -218,8 +219,8 @@ export function createStore(pool: Pool) {
         [canonical, code],
       );
       const updated = await c.query<Attendee>(
-        "UPDATE events.attendees SET coupon=$2,claimed_at=NOW() WHERE email=$1 RETURNING *",
-        [canonical, code],
+        "UPDATE events.attendees SET coupon=$2,api_link=$3,claimed_at=NOW() WHERE email=$1 RETURNING *",
+        [canonical, code, credit.rows[0].api_link],
       );
       await c.query(
         "INSERT INTO events.audit_log(action,email) VALUES('claim',$1)",
@@ -245,6 +246,45 @@ export function createStore(pool: Pool) {
       return added;
     });
   }
+  async function addCreditPairs(pairs: { codex: string; api: string }[]) {
+    return transaction(async (c) => {
+      await identityLock(c);
+      let added = 0;
+      for (const pair of pairs) {
+        const existing = await c.query<{
+          code: string;
+          api_link: string | null;
+        }>(
+          "SELECT code,api_link FROM events.credits WHERE code=ANY($1::text[]) OR api_link=ANY($1::text[])",
+          [[pair.codex, pair.api]],
+        );
+        if (
+          existing.rows.some(
+            (r) => r.code === pair.codex && r.api_link === pair.api,
+          )
+        )
+          continue;
+        const claimed = await c.query(
+          "SELECT email FROM events.attendees WHERE coupon=ANY($1::text[]) OR api_link=ANY($1::text[])",
+          [[pair.codex, pair.api]],
+        );
+        if (existing.rows.length || claimed.rows.length)
+          throw new PortalError(
+            "A link already belongs to a different or previously issued reward. No new rewards were added.",
+          );
+        await c.query(
+          "INSERT INTO events.credits(code,api_link) VALUES($1,$2)",
+          [pair.codex, pair.api],
+        );
+        added++;
+      }
+      await c.query(
+        "INSERT INTO events.audit_log(action,details) VALUES('credit_pairs_added',$1)",
+        [String(added)],
+      );
+      return added;
+    });
+  }
   async function rateLimit(key: string, max: number) {
     const r = await pool.query<{ hits: number }>(
       "INSERT INTO events.rate_limits(key,hits,expires_at) VALUES($1,1,NOW()+interval '15 minutes') ON CONFLICT(key) DO UPDATE SET hits=CASE WHEN events.rate_limits.expires_at<NOW() THEN 1 ELSE events.rate_limits.hits+1 END,expires_at=CASE WHEN events.rate_limits.expires_at<NOW() THEN NOW()+interval '15 minutes' ELSE events.rate_limits.expires_at END RETURNING hits",
@@ -262,6 +302,7 @@ export function createStore(pool: Pool) {
     advance,
     claimCoupon,
     addCredits,
+    addCreditPairs,
     rateLimit,
   };
 }
