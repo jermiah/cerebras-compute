@@ -27,12 +27,23 @@ async function main() {
       "utf8",
     ),
   );
-  await pool.query(await readFile("supabase/migrations/20260926173000_credit_pairs.sql", "utf8"));
+  await pool.query(
+    await readFile(
+      "supabase/migrations/20260926173000_credit_pairs.sql",
+      "utf8",
+    ),
+  );
   await pool.query(
     "INSERT INTO events.attendees(email,name,status,approval_source) VALUES('alex@example.com','Alex Martin','approved','luma_csv'),('pending@example.com','Sam Dubois','pending','request')",
   );
   await pool.query(
     "INSERT INTO events.credits(code) VALUES('DEMO-CREDIT-DO-NOT-REDEEM'),('https://example.com/demo-credit')",
+  );
+  await pool.query(
+    await readFile(
+      "supabase/migrations/20260927120000_test_portal.sql",
+      "utf8",
+    ),
   );
   await pool.end();
   const app = spawn(

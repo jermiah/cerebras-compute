@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { store } from "@/lib/db";
+import { getPortalDb } from "@/lib/db";
 import { PortalError } from "@/lib/store";
 import { normalizeEmail, validEmail } from "@/lib/portal";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/lib/session";
 export type ClaimState = { error?: string; message?: string };
 async function limit() {
+  const { store } = await getPortalDb();
   const ip =
     (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
   const key = createHash("sha256").update(`attendee:${ip}`).digest("hex");
@@ -39,7 +40,7 @@ export async function startClaim(
     return { error: "Enter your name and a valid email address." };
   try {
     await limit();
-    await store.enroll(email, name);
+    await (await getPortalDb()).store.enroll(email, name);
     await setAttendeeSession(email);
   } catch (e) {
     return errorState(e);
@@ -51,7 +52,9 @@ export async function communityAction(step: number, complete: boolean) {
   try {
     const email = await getAttendeeEmail();
     if (!email) throw new PortalError("Please enter your details again.");
-    const url = await store.advance(email, step, complete);
+    const url = await (
+      await getPortalDb()
+    ).store.advance(email, step, complete);
     revalidatePath("/");
     return { url };
   } catch (e) {
@@ -62,7 +65,7 @@ export async function claimCredits(): Promise<ClaimState> {
   try {
     const email = await getAttendeeEmail();
     if (!email) throw new PortalError("Please enter your details again.");
-    await store.claimCoupon(email);
+    await (await getPortalDb()).store.claimCoupon(email);
     revalidatePath("/");
     return { message: "Your credit is reserved." };
   } catch (e) {

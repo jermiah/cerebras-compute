@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import EmbeddedPostgres from "embedded-postgres";
 import { Pool } from "pg";
+import { testPool } from "../src/lib/scoped-pool";
 import { createStore } from "../src/lib/store";
 import { previewCsv, readCsv } from "../src/lib/csv";
 import { seal, unseal } from "../src/lib/tokens";
@@ -297,5 +298,68 @@ test("paired credits import atomically and stay together across concurrent claim
   assert.equal(
     (await store.findAttendee("pair1@example.com")).api_link,
     claimed[0].api_link,
+  );
+});
+
+test("test workspace imports, claims and resets cannot mutate live data", async () => {
+  await pool.query(
+    await readFile(
+      "supabase/migrations/20260927120000_test_portal.sql",
+      "utf8",
+    ),
+  );
+  const testDb = testPool(pool);
+  const sandbox = createStore(testDb);
+  const before = await store.findAttendee("pair1@example.com");
+  await sandbox.importGuests([
+    { email: "pair1@example.com", name: "Test Person" },
+  ]);
+  await sandbox.addCreditPairs([
+    {
+      codex: "https://example.com/test-codex",
+      api: "https://example.com/test-api",
+    },
+  ]);
+  await sandbox.advance("pair1@example.com", 1, false);
+  await sandbox.advance("pair1@example.com", 1, true);
+  await sandbox.advance("pair1@example.com", 2, false);
+  await sandbox.advance("pair1@example.com", 2, true);
+  const reward = await sandbox.claimCoupon("pair1@example.com");
+  assert.equal(reward.api_link, "https://example.com/test-api");
+  await sandbox.resetClaims();
+  const reset = await sandbox.findAttendee("pair1@example.com");
+  assert.equal(reset.coupon, null);
+  assert.equal(reset.community_step, 0);
+  assert.equal(reset.status, "approved");
+  assert.equal(
+    (
+      await testDb.query(
+        "SELECT count(*)::int n FROM events.credits WHERE assigned_to IS NULL",
+      )
+    ).rows[0].n,
+    1,
+  );
+  assert.deepEqual(await store.findAttendee("pair1@example.com"), before);
+});
+test("clearing a credit pool preserves issued pairs and blocks their reimport", async () => {
+  const original = await store.findAttendee("pair1@example.com");
+  await store.clearCredits();
+  assert.equal(
+    (await pool.query("SELECT count(*)::int n FROM events.credits")).rows[0].n,
+    0,
+  );
+  assert.equal(
+    (await store.claimCoupon("pair1@example.com")).coupon,
+    original.coupon,
+  );
+  await assert.rejects(
+    store.addCreditPairs([
+      { codex: original.coupon!, api: original.api_link! },
+    ]),
+  );
+  assert.equal(
+    (await testPool(pool).query("SELECT count(*)::int n FROM events.credits"))
+      .rows[0].n,
+    1,
   );
 });

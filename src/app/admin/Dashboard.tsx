@@ -6,6 +6,9 @@ import { STEPS, type CommunityLinks } from "@/lib/portal";
 import { readCsv, previewCsv, type CsvMapping } from "@/lib/csv";
 import {
   adminLogout,
+  switchPortalMode,
+  resetTestClaims,
+  clearCreditPool,
   importCsv,
   approveGuest,
   rejectGuest,
@@ -24,6 +27,7 @@ type Guest = {
   aliases: string[];
 };
 type Props = {
+  test: boolean;
   guests: Guest[];
   counts: {
     pending: number;
@@ -134,6 +138,28 @@ export default function Dashboard(props: Props) {
           <button className="secondary-button">Sign out</button>
         </form>
       </header>
+      <section className="admin-card" aria-label="Portal mode">
+        <h2>{props.test ? "Test mode" : "Live event"}</h2>
+        <p>
+          {props.test
+            ? "Your test guest list, credits and claims are separate. Uploaded credit links become dummy links; no live credits are consumed."
+            : "Live rewards are assigned once and cannot be reset. Use test mode to rehearse with your email."}
+        </p>
+        <button
+          className="secondary-button"
+          disabled={pending}
+          onClick={() => run(() => switchPortalMode(!props.test))}
+        >
+          {props.test ? "Return to live event" : "Switch to test mode"}
+        </button>
+        {props.test && (
+          <p>
+            <a href="/" target="_blank" rel="noopener noreferrer">
+              Open attendee test flow ↗
+            </a>
+          </p>
+        )}
+      </section>
       <section className="admin-stats" aria-label="Event totals">
         {[
           ["Awaiting approval", props.counts.pending],
@@ -496,6 +522,53 @@ export default function Dashboard(props: Props) {
               {pending ? "Uploading…" : "Upload credit pairs →"}
             </button>
           </form>
+        </section>
+      )}
+      {tab === "credits" && (
+        <section className="admin-card">
+          <h2>Manage {props.test ? "test" : "live"} credits</h2>
+          {props.test && (
+            <>
+              <p>
+                Reset all test claims and community steps to try again with the
+                same email. Imported guests stay approved and test credits
+                become available again.
+              </p>
+              <button
+                className="secondary-button"
+                disabled={pending}
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      "Reset all TEST claims and community progress? Live attendees and rewards will not change.",
+                    )
+                  )
+                    run(resetTestClaims);
+                }}
+              >
+                Reset test claims
+              </button>
+            </>
+          )}
+          <p>
+            Clear all uploaded credits from this {props.test ? "test" : "live"}{" "}
+            pool. Previously issued rewards stay with their attendees and cannot
+            be given to someone else. Guest records are kept.
+          </p>
+          <button
+            className="secondary-button danger"
+            disabled={pending}
+            onClick={() => {
+              if (
+                window.confirm(
+                  `Clear ALL uploaded ${props.test ? "TEST" : "LIVE"} credits? This deletes the pool, including credits from every uploaded Excel file. Existing claims stay reserved. This cannot be undone.`,
+                )
+              )
+                run(clearCreditPool);
+            }}
+          >
+            Clear {props.test ? "test" : "live"} credit pool
+          </button>
         </section>
       )}
       {tab === "settings" && (

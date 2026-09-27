@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { isAdmin } from "@/lib/session";
-import { pool, store } from "@/lib/db";
+import { getPortalDb } from "@/lib/db";
 import type { Attendee } from "@/lib/store";
 import AdminLogin from "./AdminLogin";
 import Dashboard from "./Dashboard";
@@ -15,6 +15,7 @@ export default async function AdminPage({
   searchParams: Promise<{ q?: string; status?: string; page?: string }>;
 }) {
   const admin = await isAdmin();
+  const { pool, store, test } = await getPortalDb();
   const params = await searchParams;
   let data;
   if (admin)
@@ -85,6 +86,7 @@ export default async function AdminPage({
         }),
       );
       data = {
+        test,
         guests: attendeeViews,
         counts: counts.rows[0],
         total: matching.rows[0].count,
@@ -98,7 +100,7 @@ export default async function AdminPage({
   const body = !admin ? (
     <AdminLogin />
   ) : data ? (
-    <Dashboard {...data} />
+    <Dashboard key={test ? "test" : "live"} {...data} />
   ) : (
     <section className="admin-card">
       <h1>Portal setup needed</h1>

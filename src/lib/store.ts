@@ -285,6 +285,29 @@ export function createStore(pool: Pool) {
       return added;
     });
   }
+  async function resetClaims() {
+    return transaction(async (c) => {
+      await identityLock(c);
+      await c.query(
+        "UPDATE events.attendees SET coupon=NULL,api_link=NULL,claimed_at=NULL,community_step=0,opened_step=0",
+      );
+      await c.query(
+        "UPDATE events.credits SET assigned_to=NULL,assigned_at=NULL",
+      );
+      await c.query(
+        "INSERT INTO events.audit_log(action) VALUES('test_claims_reset')",
+      );
+    });
+  }
+  async function clearCredits() {
+    return transaction(async (c) => {
+      await identityLock(c);
+      await c.query("DELETE FROM events.credits");
+      await c.query(
+        "INSERT INTO events.audit_log(action) VALUES('credit_pool_cleared')",
+      );
+    });
+  }
   async function rateLimit(key: string, max: number) {
     const r = await pool.query<{ hits: number }>(
       "INSERT INTO events.rate_limits(key,hits,expires_at) VALUES($1,1,NOW()+interval '15 minutes') ON CONFLICT(key) DO UPDATE SET hits=CASE WHEN events.rate_limits.expires_at<NOW() THEN 1 ELSE events.rate_limits.hits+1 END,expires_at=CASE WHEN events.rate_limits.expires_at<NOW() THEN NOW()+interval '15 minutes' ELSE events.rate_limits.expires_at END RETURNING hits",
@@ -304,5 +327,7 @@ export function createStore(pool: Pool) {
     addCredits,
     addCreditPairs,
     rateLimit,
+    resetClaims,
+    clearCredits,
   };
 }

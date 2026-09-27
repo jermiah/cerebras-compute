@@ -34,6 +34,7 @@ For a new database, run these files in order in the SQL editor:
 1. `supabase/events-schema.sql`
 2. `supabase/migrations/20260925191020_attendee_portal.sql`
 3. `supabase/migrations/20260926173000_credit_pairs.sql`
+4. `supabase/migrations/20260927120000_test_portal.sql`
 
 For an existing installation with `events.attendees`, `events.credits` and `events.settings`, run only migrations not yet applied. It preserves existing approvals and claims. Back up the existing event database first. Imported registration data stays in the database, never in this public repository.
 
@@ -69,3 +70,9 @@ Tests run a temporary, isolated PostgreSQL instance on port 55438 and cover CSV 
 `preview:local` creates a temporary demo database on port 55439 and starts the app at `http://127.0.0.1:3100`. The demo coordinator password is `preview-coordinator-password`; demo attendees include `alex@example.com` (approved) and `pending@example.com` (pending). Rewards are fake. Stop with Ctrl+C to delete the temporary database. Never deploy the preview script or use its example credentials in production.
 
 The inherited presentation, partner artwork and event layout are preserved. The evening agenda and advertised $15,500 credit offer match the organizer-provided event copy. Date and venue have not been supplied. The first-75-registration eligibility and selection of three Codex Pro recipients must be managed by the coordinator through the eligible import list and credit inventory; this app does not infer registration rank from a checked-in-only CSV. Database settings `event_name` and `description` override the Paris defaults if present.
+
+## Test mode and credit cleanup
+
+Coordinators can switch between Live event and Test mode in `/admin`. Test mode requires an active coordinator session and affects only that browser. Import a Luma CSV and Excel reward pairs, then open the attendee test flow and sign up with your email. Test uploads replace real reward URLs with dummy example.com URLs. Guest records, claims, stock, audit history and attendee cookies are separate from live data in the private `events_test` schema. Switching modes affects all tabs in the same browser; keep test flows in that browser.
+
+**Reset test claims** releases test stock and resets all test community progress while retaining guests and approvals. Live claims cannot be reset. **Clear credit pool** deletes every imported reward from the selected pool after confirmation. Existing issued links remain on attendee records and cannot be reimported for another person. Clearing stock does not delete guests or uploaded Luma data. Excel files themselves are not retained. Portal resets do not reverse redemption at a credit provider.

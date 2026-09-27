@@ -1,4 +1,4 @@
-import { findAttendee, getSetting, store } from "@/lib/db";
+import { getPortalDb, getSetting } from "@/lib/db";
 import { getAttendeeEmail } from "@/lib/session";
 import Image from "next/image";
 import ClaimPortal from "./ClaimPortal";
@@ -6,6 +6,7 @@ import ClaimPortal from "./ClaimPortal";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  const { store, test } = await getPortalDb();
   const [eventName, description] = await Promise.all([
     getSetting("event_name", "Cerebras Café Compute | Paris"),
     getSetting(
@@ -19,7 +20,7 @@ export default async function Home() {
   let unavailable = false;
   try {
     [attendee, links] = await Promise.all([
-      email ? findAttendee(email) : Promise.resolve(null),
+      email ? store.findAttendee(email) : Promise.resolve(null),
       store.getLinks(),
     ]);
   } catch {
@@ -28,6 +29,12 @@ export default async function Home() {
 
   return (
     <main className="event-page">
+      {test && (
+        <p className="notice">
+          TEST MODE · Dummy rewards only.{" "}
+          <a href="/admin">Return to coordinator portal</a>
+        </p>
+      )}
       <div className="ambient ambient-one" aria-hidden="true" />
       <div className="ambient ambient-two" aria-hidden="true" />
 

@@ -1,3 +1,5 @@
+import { isTestMode } from "./portal-mode";
+import { testPool } from "./scoped-pool";
 import { Pool } from "pg";
 import { createStore } from "./store";
 export { normalizeEmail } from "./portal";
@@ -27,4 +29,15 @@ export async function getSetting(key: string, fallback = "") {
   } catch {
     return fallback;
   }
+}
+
+const sandboxPool = testPool(pool);
+const sandboxStore = createStore(sandboxPool);
+export async function getPortalDb() {
+  const test = await isTestMode();
+  return {
+    pool: test ? sandboxPool : pool,
+    store: test ? sandboxStore : store,
+    test,
+  };
 }

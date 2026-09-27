@@ -1,10 +1,10 @@
 "use server";
 import { readCreditWorkbook, type CreditPair } from "@/lib/credit-workbook";
 import { createHash } from "node:crypto";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { pool, store } from "@/lib/db";
+import { store, getPortalDb } from "@/lib/db";
 import {
   requireAdmin,
   setAdminSession,
@@ -80,6 +80,7 @@ export async function importCsv(
   mapping: CsvMapping,
 ): Promise<AdminResult> {
   await requireAdmin();
+  const { store } = await getPortalDb();
   try {
     const preview = previewCsv(text, mapping);
     if (!preview.guests.length)
@@ -103,6 +104,7 @@ export async function approveGuest(
   original: string,
 ): Promise<AdminResult> {
   await requireAdmin();
+  const { store } = await getPortalDb();
   email = normalizeEmail(email);
   original = normalizeEmail(original);
   if (
@@ -127,6 +129,7 @@ export async function approveGuest(
 }
 export async function rejectGuest(email: string): Promise<AdminResult> {
   await requireAdmin();
+  const { store } = await getPortalDb();
   try {
     await store.reject(normalizeEmail(email));
     refresh();
@@ -140,6 +143,7 @@ export async function rejectGuest(email: string): Promise<AdminResult> {
 }
 export async function uploadCredits(form: FormData): Promise<AdminResult> {
   await requireAdmin();
+  const { store, test } = await getPortalDb();
   const file = form.get("credits");
   if (!(file instanceof File) || !file.name.toLowerCase().endsWith(".xlsx"))
     return { error: "Choose an Excel (.xlsx) file with Codex and API links." };
@@ -154,7 +158,13 @@ export async function uploadCredits(form: FormData): Promise<AdminResult> {
     };
   }
   try {
-    const added = await store.addCreditPairs(links);
+    const rewards = test
+      ? links.map((p) => ({
+          codex: `https://example.com/test/codex/${createHash("sha256").update(p.codex).digest("hex")}`,
+          api: `https://example.com/test/api/${createHash("sha256").update(p.api).digest("hex")}`,
+        }))
+      : links;
+    const added = await store.addCreditPairs(rewards);
     refresh();
     return {
       message: `${added} reward pairs added. Each attendee receives both links; existing pairs were skipped.`,
@@ -167,6 +177,7 @@ export async function saveLinks(
   links: Record<string, string>,
 ): Promise<AdminResult> {
   await requireAdmin();
+  const { pool } = await getPortalDb();
   for (const s of STEPS) {
     const url = (links[s.key] ?? "").trim();
     if (url && !validCommunityLink(s.key, url))
@@ -193,5 +204,50 @@ export async function saveLinks(
     return failure(e);
   } finally {
     c.release();
+  }
+}
+
+export async function switchPortalMode(test: boolean): Promise<AdminResult> {
+  await requireAdmin();
+  (await cookies()).set("portal_mode", test ? "test" : "live", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+  });
+  refresh();
+  return {
+    message: test
+      ? "Test mode enabled. Imports and claims are separate from live data."
+      : "Live mode enabled.",
+  };
+}
+export async function resetTestClaims(): Promise<AdminResult> {
+  await requireAdmin();
+  const { store, test } = await getPortalDb();
+  if (!test) return { error: "Switch to test mode to reset test claims." };
+  try {
+    await store.resetClaims();
+    refresh();
+    return {
+      message:
+        "Test claims and community progress reset. You can test again with the same email.",
+    };
+  } catch (e) {
+    return failure(e);
+  }
+}
+export async function clearCreditPool(): Promise<AdminResult> {
+  await requireAdmin();
+  const { store } = await getPortalDb();
+  try {
+    await store.clearCredits();
+    refresh();
+    return {
+      message:
+        "Credit pool cleared. Previously issued rewards remain reserved to their attendees and cannot be reissued.",
+    };
+  } catch (e) {
+    return failure(e);
   }
 }

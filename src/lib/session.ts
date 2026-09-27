@@ -16,14 +16,20 @@ async function setCookie(
   });
 }
 export async function setAttendeeSession(email: string) {
-  await setCookie("attendee", { role: "attendee", email });
+  await setCookie((await isTestMode()) ? "test_attendee" : "attendee", {
+    role: "attendee",
+    email,
+  });
 }
 export async function getAttendeeEmail() {
-  const data = unseal((await cookies()).get("attendee")?.value);
+  const data = unseal(
+    (await cookies()).get((await isTestMode()) ? "test_attendee" : "attendee")
+      ?.value,
+  );
   return data?.role === "attendee" ? data.email : null;
 }
 export async function clearAttendeeSession() {
-  (await cookies()).delete("attendee");
+  (await cookies()).delete((await isTestMode()) ? "test_attendee" : "attendee");
 }
 function adminVersion() {
   return createHash("sha256")
@@ -50,4 +56,10 @@ export async function requireAdmin() {
 }
 export async function clearAdminSession() {
   (await cookies()).delete("coordinator");
+}
+
+export async function isTestMode() {
+  return (
+    (await cookies()).get("portal_mode")?.value === "test" && (await isAdmin())
+  );
 }
