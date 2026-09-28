@@ -1,5 +1,5 @@
 "use server";
-import { createHash } from "node:crypto";
+import { allowAttendeeSignIn } from "@/lib/attendee-rate-limit";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -12,12 +12,11 @@ import {
   setAttendeeSession,
 } from "@/lib/session";
 export type ClaimState = { error?: string; message?: string };
-async function limit() {
+async function limit(email: string) {
   const { store } = await getPortalDb();
   const ip =
     (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
-  const key = createHash("sha256").update(`attendee:${ip}`).digest("hex");
-  if (!(await store.rateLimit(key, 100)))
+  if (!(await allowAttendeeSignIn(store, ip, email)))
     throw new PortalError(
       "Too many requests. Please try again in 15 minutes or see the coordinator.",
     );
@@ -39,7 +38,7 @@ export async function startClaim(
   if (!validEmail(email) || !name || name.length > 120)
     return { error: "Enter your name and a valid email address." };
   try {
-    await limit();
+    await limit(email);
     await (await getPortalDb()).store.enroll(email, name);
     await setAttendeeSession(email);
   } catch (e) {

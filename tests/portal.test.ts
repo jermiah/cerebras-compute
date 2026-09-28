@@ -398,3 +398,42 @@ test("repeated imports trim whitespace, skip existing entries and append new one
   );
   assert.equal(await store.addCreditPairs([first]), 0);
 });
+
+test("120 guests on venue Wi-Fi can each sign in three times; one email remains throttled", async () => {
+  const { allowAttendeeSignIn } =
+    await import("../src/lib/attendee-rate-limit");
+  const attempts = await Promise.all(
+    Array.from({ length: 120 }, async (_, i) => {
+      for (let retry = 0; retry < 3; retry++)
+        assert.equal(
+          await allowAttendeeSignIn(
+            store,
+            "venue-wifi",
+            `guest${i}@example.com`,
+          ),
+          true,
+        );
+    }),
+  );
+  assert.equal(attempts.length, 120);
+  for (let i = 3; i < 20; i++)
+    assert.equal(
+      await allowAttendeeSignIn(store, "venue-wifi", "guest0@example.com"),
+      true,
+    );
+  assert.equal(
+    await allowAttendeeSignIn(store, "venue-wifi", " GUEST0@example.com "),
+    false,
+  );
+  assert.equal(
+    await allowAttendeeSignIn(store, "venue-wifi", "unaffected@example.com"),
+    true,
+  );
+  await pool.query(
+    "UPDATE events.rate_limits SET expires_at=NOW()-interval '1 second'",
+  );
+  assert.equal(
+    await allowAttendeeSignIn(store, "venue-wifi", "guest0@example.com"),
+    true,
+  );
+});
