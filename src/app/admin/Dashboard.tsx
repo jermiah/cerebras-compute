@@ -391,8 +391,9 @@ export default function Dashboard(props: Props) {
               onChange={(e) => void chooseFile(e.target.files?.[0])}
             />
             <small>
-              Up to 500 KB / 5,000 rows. Uploading again preserves claims and
-              progress.
+              Up to 500 KB / 5,000 rows. Surrounding spaces are trimmed.
+              Re-upload to add new emails; existing claims and progress are
+              preserved.
             </small>
           </label>
           {headers.length > 0 && (
@@ -521,7 +522,8 @@ export default function Dashboard(props: Props) {
               />
               <small>
                 Up to 500 KB / 5,000 pairs. Both links are required in every
-                row.
+                row. Surrounding spaces are trimmed; identical pairs are
+                skipped.
               </small>
             </label>
             <button className="primary-button" disabled={pending}>

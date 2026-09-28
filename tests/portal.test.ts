@@ -352,14 +352,49 @@ test("clearing a credit pool preserves issued pairs and blocks their reimport", 
     (await store.claimCoupon("pair1@example.com")).coupon,
     original.coupon,
   );
-  await assert.rejects(
-    store.addCreditPairs([
+  assert.equal(
+    await store.addCreditPairs([
       { codex: original.coupon!, api: original.api_link! },
     ]),
+    0,
   );
   assert.equal(
     (await testPool(pool).query("SELECT count(*)::int n FROM events.credits"))
       .rows[0].n,
     1,
   );
+});
+
+test("repeated imports trim whitespace, skip existing entries and append new ones", async () => {
+  await store.importGuests([
+    { email: "  REIMPORT@example.com  ", name: "Guest" },
+  ]);
+  await store.importGuests([
+    { email: "reimport@example.com", name: "Guest" },
+    { email: " new-import@example.com ", name: "New" },
+  ]);
+  assert.equal(
+    (
+      await pool.query(
+        "SELECT count(*)::int n FROM events.attendees WHERE email IN ('reimport@example.com','new-import@example.com')",
+      )
+    ).rows[0].n,
+    2,
+  );
+  const first = {
+    codex: "https://example.com/ExactToken",
+    api: "https://example.com/ApiToken",
+  };
+  assert.equal(await store.addCreditPairs([first]), 1);
+  assert.equal(
+    await store.addCreditPairs([
+      { codex: `  ${first.codex}  `, api: ` ${first.api} ` },
+      {
+        codex: "https://example.com/NextToken",
+        api: "https://example.com/NextApi",
+      },
+    ]),
+    1,
+  );
+  assert.equal(await store.addCreditPairs([first]), 0);
 });

@@ -250,7 +250,8 @@ export function createStore(pool: Pool) {
     return transaction(async (c) => {
       await identityLock(c);
       let added = 0;
-      for (const pair of pairs) {
+      for (const input of pairs) {
+        const pair = { codex: input.codex.trim(), api: input.api.trim() };
         const existing = await c.query<{
           code: string;
           api_link: string | null;
@@ -264,10 +265,16 @@ export function createStore(pool: Pool) {
           )
         )
           continue;
-        const claimed = await c.query(
-          "SELECT email FROM events.attendees WHERE coupon=ANY($1::text[]) OR api_link=ANY($1::text[])",
+        const claimed = await c.query<{ coupon: string; api_link: string }>(
+          "SELECT coupon,api_link FROM events.attendees WHERE coupon=ANY($1::text[]) OR api_link=ANY($1::text[])",
           [[pair.codex, pair.api]],
         );
+        if (
+          claimed.rows.some(
+            (r) => r.coupon === pair.codex && r.api_link === pair.api,
+          )
+        )
+          continue;
         if (existing.rows.length || claimed.rows.length)
           throw new PortalError(
             "A link already belongs to a different or previously issued reward. No new rewards were added.",
