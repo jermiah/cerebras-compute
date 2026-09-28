@@ -437,3 +437,39 @@ test("120 guests on venue Wi-Fi can each sign in three times; one email remains 
     true,
   );
 });
+
+test("120 concurrent attendee claims each reserve a distinct intact reward pair", async () => {
+  const sandbox = createStore(testPool(pool));
+  await sandbox.clearCredits();
+  const guests = Array.from({ length: 120 }, (_, i) => ({
+    email: `load-claim-${i}@example.com`,
+    name: `Guest ${i}`,
+  }));
+  const pairs = guests.map((_, i) => ({
+    codex: `https://example.com/load-codex-${i}`,
+    api: `https://example.com/load-api-${i}`,
+  }));
+  await sandbox.importGuests(guests);
+  await sandbox.addCreditPairs(pairs);
+  await testPool(pool).query(
+    "UPDATE events.attendees SET community_step=2 WHERE email LIKE 'load-claim-%@example.com'",
+  );
+  const claims = await Promise.all(
+    guests.map((g) => sandbox.claimCoupon(g.email)),
+  );
+  assert.equal(new Set(claims.map((c) => c.coupon)).size, 120);
+  assert.equal(new Set(claims.map((c) => c.api_link)).size, 120);
+  for (const claim of claims)
+    assert.equal(
+      claim.api_link,
+      pairs.find((p) => p.codex === claim.coupon)?.api,
+    );
+  assert.equal(
+    (
+      await testPool(pool).query(
+        "SELECT count(*)::int n FROM events.credits WHERE assigned_to IS NULL",
+      )
+    ).rows[0].n,
+    0,
+  );
+});
