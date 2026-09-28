@@ -1,6 +1,11 @@
 "use server";
-import { readCreditWorkbook, type CreditPair } from "@/lib/credit-workbook";
+import {
+  readCreditWorkbook,
+  readCreditCsv,
+  type CreditPair,
+} from "@/lib/credit-workbook";
 import { createHash } from "node:crypto";
+import { guestWorkbookCsv } from "@/lib/guest-workbook";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -145,13 +150,17 @@ export async function uploadCredits(form: FormData): Promise<AdminResult> {
   await requireAdmin();
   const { store, test } = await getPortalDb();
   const file = form.get("credits");
-  if (!(file instanceof File) || !file.name.toLowerCase().endsWith(".xlsx"))
-    return { error: "Choose an Excel (.xlsx) file with Codex and API links." };
+  if (!(file instanceof File) || !/\.(xlsx|csv)$/i.test(file.name))
+    return {
+      error: "Choose a CSV or Excel (.xlsx) file with Codex and API links.",
+    };
   if (file.size > 500000)
-    return { error: "Choose an Excel file smaller than 500 KB." };
+    return { error: "Choose a file smaller than 500 KB." };
   let links: CreditPair[];
   try {
-    links = await readCreditWorkbook(await file.arrayBuffer());
+    links = file.name.toLowerCase().endsWith(".csv")
+      ? readCreditCsv(await file.text())
+      : await readCreditWorkbook(await file.arrayBuffer());
   } catch (e) {
     return {
       error: e instanceof Error ? e.message : "Unable to read Excel file.",
@@ -249,5 +258,27 @@ export async function clearCreditPool(): Promise<AdminResult> {
     };
   } catch (e) {
     return failure(e);
+  }
+}
+
+export async function prepareGuestFile(
+  form: FormData,
+): Promise<{ text?: string; error?: string }> {
+  await requireAdmin();
+  const file = form.get("guests");
+  if (!(file instanceof File) || !/\.(csv|xlsx)$/i.test(file.name))
+    return { error: "Choose a CSV or Excel (.xlsx) guest file." };
+  if (file.size > 500000)
+    return { error: "Choose a file smaller than 500 KB." };
+  try {
+    return {
+      text: file.name.toLowerCase().endsWith(".xlsx")
+        ? await guestWorkbookCsv(await file.arrayBuffer())
+        : await file.text(),
+    };
+  } catch (e) {
+    return {
+      error: e instanceof Error ? e.message : "Unable to read guest file.",
+    };
   }
 }

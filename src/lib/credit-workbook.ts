@@ -1,4 +1,5 @@
 import ExcelJS from "exceljs";
+import Papa from "papaparse";
 export type CreditPair = { codex: string; api: string };
 export async function readCreditWorkbook(
   data: ArrayBuffer,
@@ -13,6 +14,9 @@ export async function readCreditWorkbook(
       "Unable to read Excel file. Save it as .xlsx and try again.",
     );
   }
+  return validateCredits(workbook);
+}
+function validateCredits(workbook: ExcelJS.Workbook): CreditPair[] {
   const sheets = workbook.worksheets.filter((s) => s.actualRowCount > 0);
   if (sheets.length !== 1)
     throw new Error(
@@ -71,4 +75,22 @@ export async function readCreditWorkbook(
   if (!pairs.length)
     throw new Error("Add at least one row containing both credit links.");
   return pairs;
+}
+
+export function readCreditCsv(text: string): CreditPair[] {
+  if (new TextEncoder().encode(text).length > 500000)
+    throw new Error("Choose a file smaller than 500 KB.");
+  const parsed = Papa.parse<string[]>(text.replace(/^\uFEFF/, ""), {
+    delimiter: ",",
+    skipEmptyLines: "greedy",
+  });
+  if (parsed.errors.length || parsed.data.some((row) => row.length !== 2))
+    throw new Error(
+      "Use a CSV with exactly two columns: Codex links, API links.",
+    );
+  if (parsed.data.length > 5001)
+    throw new Error("Upload at most 5,000 reward rows.");
+  const workbook = new ExcelJS.Workbook();
+  workbook.addWorksheet("Credits").addRows(parsed.data);
+  return validateCredits(workbook);
 }

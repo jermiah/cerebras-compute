@@ -10,6 +10,7 @@ import {
   resetTestClaims,
   clearCreditPool,
   importCsv,
+  prepareGuestFile,
   approveGuest,
   rejectGuest,
   uploadCredits,
@@ -96,11 +97,16 @@ export default function Dashboard(props: Props) {
     setNotice({});
     if (!file) return;
     if (file.size > 500000) {
-      setNotice({ error: "Choose a CSV smaller than 500 KB." });
+      setNotice({ error: "Choose a file smaller than 500 KB." });
       return;
     }
     try {
-      const text = await file.text();
+      const data = new FormData();
+      data.set("guests", file);
+      const result = await prepareGuestFile(data);
+      if (result.error || result.text === undefined)
+        throw new Error(result.error || "Unable to read file.");
+      const text = result.text;
       const parsed = readCsv(text);
       setCsv(text);
       setHeaders(parsed.headers);
@@ -176,7 +182,7 @@ export default function Dashboard(props: Props) {
       <nav className="admin-tabs" aria-label="Portal sections">
         {[
           ["guests", "Guests & approvals"],
-          ["import", "Import Luma CSV"],
+          ["import", "Import Luma guests"],
           ["credits", "Credit pool"],
           ["settings", "Community links"],
           ["activity", "Activity"],
@@ -378,10 +384,10 @@ export default function Dashboard(props: Props) {
             includes check-in status.
           </p>
           <label className="upload-box">
-            Choose Luma CSV
+            Choose Luma CSV or Excel file
             <input
               type="file"
-              accept=".csv,text/csv"
+              accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               onChange={(e) => void chooseFile(e.target.files?.[0])}
             />
             <small>
@@ -484,7 +490,7 @@ export default function Dashboard(props: Props) {
         <section className="admin-card">
           <h2>Stock the credit pool.</h2>
           <p>
-            Upload one Excel (.xlsx) file with two columns:{" "}
+            Upload one CSV or Excel (.xlsx) file with two columns:{" "}
             <strong>Codex links</strong> in column A and{" "}
             <strong>API links</strong> in column B. Each row supplies both links
             to one attendee.
@@ -505,11 +511,11 @@ export default function Dashboard(props: Props) {
             }}
           >
             <label className="upload-box">
-              Choose Codex + API Excel file
+              Choose Codex + API CSV or Excel file
               <input
                 name="credits"
                 type="file"
-                accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 required
                 disabled={pending}
               />
