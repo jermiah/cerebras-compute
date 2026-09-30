@@ -42,12 +42,15 @@ function validateCredits(workbook: ExcelJS.Workbook): CreditPair[] {
     if (cells.every((c) => c.value === null || c.text.trim() === "")) continue;
     const urls = cells.map((cell, col) => {
       const value = cell.value;
-      const link =
+      let link =
         typeof value === "string"
           ? value.trim()
           : value && typeof value === "object" && "hyperlink" in value
             ? value.hyperlink.trim()
             : "";
+      // Spreadsheets often omit the scheme from ChatGPT claim links.
+      if (col === 0 && /^(?:www\.)?chatgpt\.com\//i.test(link))
+        link = `https://${link}`;
       if (col === 1 && /^[A-Za-z0-9][A-Za-z0-9._-]{0,1999}$/.test(link))
         return link;
       try {

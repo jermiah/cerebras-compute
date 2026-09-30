@@ -116,3 +116,25 @@ test("API coupons work in CSV and XLSX, trim without changing case and deduplica
     expected,
   );
 });
+
+test("screenshot-style ChatGPT links without scheme import and deduplicate in CSV and XLSX", async () => {
+  const rows = [
+    ["Codex links", "API coupons"],
+    [" chatgpt.com/codex/p/ExampleCase123 ", " CouponCase-456 "],
+    ["https://chatgpt.com/codex/p/ExampleCase123", "CouponCase-456"],
+  ];
+  const expected = [
+    {
+      codex: "https://chatgpt.com/codex/p/ExampleCase123",
+      api: "CouponCase-456",
+    },
+  ];
+  assert.deepEqual(await parse(rows), expected);
+  assert.deepEqual(
+    readCreditCsv(rows.map((r) => r.join(",")).join("\n")),
+    expected,
+  );
+  assert.throws(() =>
+    readCreditCsv("Codex links,API coupons\njavascript:alert(1),Coupon123"),
+  );
+});
