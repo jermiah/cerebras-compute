@@ -128,8 +128,9 @@ export default function ClaimPortal({
         <span className="status-pill">Credit reserved</span>
         <h3>You’re ready to build.</h3>
         <p>
-          This reward belongs to <strong>{attendee.email}</strong>. Returning
-          here shows the same credit.
+          This reward belongs to{" "}
+          <strong>{attendee.name || attendee.email}</strong> ({attendee.email}).
+          Returning here shows the same credit.
         </p>
         <RewardCard
           label={attendee.api_link ? "OpenAI Codex" : "OpenAI credit"}
@@ -247,8 +248,8 @@ export default function ClaimPortal({
           <div className="step-detail">
             <h3>You’re all set.</h3>
             <p>
-              Claim your OpenAI Codex and API links together. One reward pair
-              per attendee, even if you change emails.
+              Claim your OpenAI Codex link and API coupon together. One reward
+              pair per attendee, even if you change emails.
             </p>
             <button
               className="primary-button"

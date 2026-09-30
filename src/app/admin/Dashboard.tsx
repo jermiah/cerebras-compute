@@ -493,12 +493,12 @@ export default function Dashboard(props: Props) {
           <p>
             Upload one CSV or Excel (.xlsx) file with two columns:{" "}
             <strong>Codex links</strong> in column A and{" "}
-            <strong>API links</strong> in column B. Each row supplies both links
-            to one attendee.
+            <strong>API coupons</strong> in column B. Each row supplies a Codex
+            link and an API coupon to one attendee.
           </p>
           <p>
-            Use those column headings in the first row, then add one pair of
-            full URLs per row.
+            Use those column headings in the first row, then add one Codex URL
+            and API coupon code per row.
           </p>
           <form
             onSubmit={(e) => {
@@ -521,7 +521,7 @@ export default function Dashboard(props: Props) {
                 disabled={pending}
               />
               <small>
-                Up to 500 KB / 5,000 pairs. Both links are required in every
+                Up to 500 KB / 5,000 pairs. Both values are required in every
                 row. Surrounding spaces are trimmed; identical pairs are
                 skipped.
               </small>

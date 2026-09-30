@@ -209,10 +209,16 @@ export function createStore(pool: Pool) {
       const credit = await c.query<{ code: string; api_link: string | null }>(
         "SELECT code,api_link FROM events.credits WHERE assigned_to IS NULL ORDER BY created_at,code FOR UPDATE SKIP LOCKED LIMIT 1",
       );
-      if (!credit.rows[0])
-        throw new PortalError(
-          "All credits are currently claimed. Please see the coordinator.",
+      if (!credit.rows[0]) {
+        const inventory = await c.query(
+          "SELECT EXISTS(SELECT 1 FROM events.credits) AS stocked",
         );
+        throw new PortalError(
+          inventory.rows[0].stocked
+            ? "All uploaded rewards have been assigned. Please see the coordinator."
+            : "No rewards have been uploaded to this pool yet. Please ask the coordinator to upload the Codex links and API coupons.",
+        );
+      }
       const code = credit.rows[0].code;
       await c.query(
         "UPDATE events.credits SET assigned_to=$1,assigned_at=NOW() WHERE code=$2",

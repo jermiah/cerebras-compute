@@ -12,13 +12,14 @@ export default function RewardCard({
 }) {
   const [message, setMessage] = useState("");
   const href = creditHref(value);
+  const kind = href ? "link" : "coupon";
   async function copy() {
     try {
       await navigator.clipboard.writeText(value);
-      setMessage(`${label} link copied.`);
+      setMessage(`${label} ${kind} copied.`);
     } catch {
       setMessage(
-        "Copy unavailable. Select the full link above to copy it manually.",
+        "Copy unavailable. Select the value above to copy it manually.",
       );
     }
   }
@@ -31,9 +32,9 @@ export default function RewardCard({
           type="button"
           className="secondary-button"
           onClick={copy}
-          aria-label={`Copy ${label} link`}
+          aria-label={`Copy ${label} ${kind}`}
         >
-          Copy link
+          Copy {kind}
         </button>
         {href && (
           <a

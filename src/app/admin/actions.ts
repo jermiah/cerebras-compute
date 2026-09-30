@@ -152,7 +152,8 @@ export async function uploadCredits(form: FormData): Promise<AdminResult> {
   const file = form.get("credits");
   if (!(file instanceof File) || !/\.(xlsx|csv)$/i.test(file.name))
     return {
-      error: "Choose a CSV or Excel (.xlsx) file with Codex and API links.",
+      error:
+        "Choose a CSV or Excel (.xlsx) file with Codex links and API coupons.",
     };
   if (file.size > 500000)
     return { error: "Choose a file smaller than 500 KB." };
@@ -170,13 +171,13 @@ export async function uploadCredits(form: FormData): Promise<AdminResult> {
     const rewards = test
       ? links.map((p) => ({
           codex: `https://example.com/test/codex/${createHash("sha256").update(p.codex).digest("hex")}`,
-          api: `https://example.com/test/api/${createHash("sha256").update(p.api).digest("hex")}`,
+          api: `TEST-${createHash("sha256").update(p.api).digest("hex")}`,
         }))
       : links;
     const added = await store.addCreditPairs(rewards);
     refresh();
     return {
-      message: `${added} reward pairs added. Each attendee receives both links; existing pairs were skipped.`,
+      message: `${added} reward pairs added. Each attendee receives a Codex link and API coupon; existing pairs were skipped.`,
     };
   } catch (e) {
     return failure(e);

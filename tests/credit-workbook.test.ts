@@ -102,3 +102,17 @@ test("credit CSV trims surrounding spaces without changing token case", () => {
     ],
   );
 });
+
+test("API coupons work in CSV and XLSX, trim without changing case and deduplicate", async () => {
+  const rows = [
+    ["Codex links", "API coupons"],
+    [" https://example.com/codex ", " AbC-123_xyz "],
+    ["https://example.com/codex", "AbC-123_xyz"],
+  ];
+  const expected = [{ codex: "https://example.com/codex", api: "AbC-123_xyz" }];
+  assert.deepEqual(await parse(rows), expected);
+  assert.deepEqual(
+    readCreditCsv(rows.map((r) => r.join(",")).join("\n")),
+    expected,
+  );
+});

@@ -123,7 +123,7 @@ test("server enforces sequential opens, confirmations, approvals, and stock", as
   }
   await assert.rejects(
     () => store.claimCoupon("steps@example.com"),
-    /currently claimed/,
+    /No rewards have been uploaded/,
   );
   await store.addCredits(["FIRST"]);
   assert.equal((await store.claimCoupon("steps@example.com")).coupon, "FIRST");
@@ -472,4 +472,21 @@ test("120 concurrent attendee claims each reserve a distinct intact reward pair"
     ).rows[0].n,
     0,
   );
+});
+
+test("returning email keeps original name and Codex/API coupon pair", async () => {
+  const sandbox = createStore(testPool(pool));
+  await sandbox.approve("return-coupon@example.com", "Original Name");
+  await sandbox.addCreditPairs([
+    { codex: "https://example.com/return-codex", api: "API-Coupon-AbC" },
+  ]);
+  await testPool(pool).query(
+    "UPDATE events.attendees SET community_step=2 WHERE email='return-coupon@example.com'",
+  );
+  const first = await sandbox.claimCoupon("return-coupon@example.com");
+  await sandbox.enroll(" RETURN-COUPON@example.com ", "Different Name");
+  const again = await sandbox.claimCoupon("return-coupon@example.com");
+  assert.equal(again.name, "Original Name");
+  assert.equal(again.coupon, first.coupon);
+  assert.equal(again.api_link, "API-Coupon-AbC");
 });
