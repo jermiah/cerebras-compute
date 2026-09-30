@@ -42,11 +42,11 @@ export default function LoginForm() {
         </p>
       )}
       <button className="primary-button" disabled={pending}>
-        {pending ? "Checking…" : "Continue to credits →"}
+        {pending ? "Checking…" : "Continue to OpenAI credits →"}
       </button>
       <p className="form-copy form-fine-print">
         Your name, email and progress are used to manage event access and one
-        credit per attendee.
+        OpenAI reward per attendee.
       </p>
     </form>
   );

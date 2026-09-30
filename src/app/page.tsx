@@ -166,8 +166,8 @@ export default async function Home() {
           <div className="ticket-heading">
             <span className="ticket-stamp">CC</span>
             <div>
-              <p>Access pass</p>
-              <h2>Claim your credits</h2>
+              <p>OpenAI · Codex + API</p>
+              <h2>Claim your OpenAI credits</h2>
             </div>
           </div>
           <ClaimPortal
@@ -223,6 +223,48 @@ export default async function Home() {
             conversation-driven.
           </p>
         </aside>
+      </section>
+
+      <section className="backboard-offer" aria-labelledby="backboard-title">
+        <div>
+          <p className="eyebrow">ANOTHER WAY TO BUILD · BACKBOARD</p>
+          <h2 id="backboard-title">Build something with Jev × Cerebras.</h2>
+          <p>
+            Backboard is supporting Café Compute Paris participants with{" "}
+            <strong>$10 in API credits</strong>. Try TypeSafe Jev through
+            Backboard’s System One API for structured decisions, probabilities,
+            categories, and scores your code can use.
+          </p>
+          <p>
+            Pair Jev’s decision intelligence with Cerebras inference speed.
+            We’re looking for builders to show us their Jev × Cerebras demos
+            tonight.
+          </p>
+        </div>
+        <div className="backboard-redemption">
+          <p className="eyebrow">CLAIM ON BACKBOARD</p>
+          <p>
+            Register on Backboard with this event promo code, then verify your
+            email to activate your credits.
+          </p>
+          <code className="backboard-code">CAFECOMPUTE</code>
+          <a
+            className="primary-button"
+            href="https://backboard.io/hackathons"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Claim Backboard credits ↗
+          </a>
+          <a
+            className="backboard-docs"
+            href="https://docs.backboard.io/sdk/system-one"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Read the Jev docs ↗
+          </a>
+        </div>
       </section>
 
       <section className="agenda-card" aria-label="Event schedule">

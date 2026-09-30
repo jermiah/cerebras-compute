@@ -155,7 +155,7 @@ export default function ClaimPortal({
             rel="noopener noreferrer"
             className="primary-button"
           >
-            Open API link ↗
+            Open OpenAI API link ↗
           </a>
         )}
         {signout}
@@ -172,7 +172,7 @@ export default function ClaimPortal({
       </h3>
       <p>
         Hi {attendee.name || "there"}. Complete the community steps, then claim
-        your credit.
+        your OpenAI credits.
       </p>
       <p>
         {attendee.community_step} of {STEPS.length} steps completed
@@ -267,15 +267,15 @@ export default function ClaimPortal({
           <div className="step-detail">
             <h3>You’re all set.</h3>
             <p>
-              Claim your Codex and API links together. One reward pair per
-              attendee, even if you change emails.
+              Claim your OpenAI Codex and API links together. One reward pair
+              per attendee, even if you change emails.
             </p>
             <button
               className="primary-button"
               disabled={pending}
               onClick={claim}
             >
-              {pending ? "Reserving…" : "Claim my credits →"}
+              {pending ? "Reserving…" : "Claim my OpenAI credits →"}
             </button>
           </div>
         )}
