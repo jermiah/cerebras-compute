@@ -116,9 +116,6 @@ export default async function Home() {
               </a>
             </p>
           </div>
-          <a className="slides-link" href="/slides">
-            View the Cerebras presentation <span>↗</span>
-          </a>
           <div className="city-line" aria-label="Paris to the world">
             <span>PAR</span>
             <b>✦</b>
