@@ -2,14 +2,10 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Attendee } from "@/lib/store";
-import {
-  STEPS,
-  creditHref,
-  validCommunityLink,
-  type CommunityLinks,
-} from "@/lib/portal";
+import { STEPS, validCommunityLink, type CommunityLinks } from "@/lib/portal";
 import { communityAction, claimCredits, logout } from "./actions";
 import LoginForm from "./LoginForm";
+import RewardCard from "./RewardCard";
 export default function ClaimPortal({
   attendee,
   links,
@@ -127,8 +123,6 @@ export default function ClaimPortal({
       </section>
     );
   if (attendee.coupon) {
-    const href = creditHref(attendee.coupon);
-    const apiHref = attendee.api_link ? creditHref(attendee.api_link) : null;
     return (
       <section className="claim-status">
         <span className="status-pill">Credit reserved</span>
@@ -137,26 +131,12 @@ export default function ClaimPortal({
           This reward belongs to <strong>{attendee.email}</strong>. Returning
           here shows the same credit.
         </p>
-        <code className="reward-code">{attendee.coupon}</code>
-        {href && (
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="primary-button"
-          >
-            {apiHref ? "Open Codex link ↗" : "Open credit link ↗"}
-          </a>
-        )}
-        {apiHref && (
-          <a
-            href={apiHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="primary-button"
-          >
-            Open OpenAI API link ↗
-          </a>
+        <RewardCard
+          label={attendee.api_link ? "OpenAI Codex" : "OpenAI credit"}
+          value={attendee.coupon}
+        />
+        {attendee.api_link && (
+          <RewardCard label="OpenAI API" value={attendee.api_link} />
         )}
         {signout}
       </section>

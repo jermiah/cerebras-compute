@@ -516,3 +516,10 @@ textarea:focus-visible {
     font-size: clamp(43px, 12vw, 70px);
   }
 }
+
+.reward-card { display: grid; gap: 14px; min-width: 0; padding: 20px; border: 1px solid var(--ink); border-radius: 12px; background: #fffaf0; }
+.reward-card h4 { margin: 0; font-size: 18px; }
+.reward-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.reward-actions > * { flex: 1 1 180px; }
+.reward-copy-status { font-size: 13px; }
+.reward-copy-status:empty { display: none; }
