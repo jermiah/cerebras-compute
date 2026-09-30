@@ -20,15 +20,11 @@ test("Excel import supports paired text URLs, hyperlink cells and identical dupl
     [{ codex: pair[0], api: pair[1] }],
   );
 });
-test("Excel import rejects partial pairs, unsafe URLs, formulas, wrong columns and conflicting reuse", async () => {
+test("Excel import rejects partial pairs, formulas, wrong columns and conflicting reuse", async () => {
   for (const rows of [
     [
       ["Codex links", "API links"],
       ["https://example.com/codex", ""],
-    ],
-    [
-      ["Codex links", "API links"],
-      ["https://example.com/codex", "javascript:alert(1)"],
     ],
     [
       ["Codex links", "API links"],
@@ -50,7 +46,7 @@ test("Excel import rejects partial pairs, unsafe URLs, formulas, wrong columns a
     await assert.rejects(parse(rows));
 });
 
-test("CSV credit imports use the same pair and URL validation", () => {
+test("CSV credit imports use the same two-column validation", () => {
   assert.deepEqual(
     readCreditCsv(
       '\uFEFFCodex links,API links\r\n"https://example.com/c?x=1,2",https://example.com/a\r\n',
@@ -58,7 +54,6 @@ test("CSV credit imports use the same pair and URL validation", () => {
     [{ codex: "https://example.com/c?x=1,2", api: "https://example.com/a" }],
   );
   for (const text of [
-    "Codex links,API links\na,b",
     "Codex links,API links\nhttps://example.com/c,",
     "Codex links,API links\nhttps://example.com/c,https://example.com/a,extra",
   ])
@@ -117,24 +112,21 @@ test("API coupons work in CSV and XLSX, trim without changing case and deduplica
   );
 });
 
-test("screenshot-style ChatGPT links without scheme import and deduplicate in CSV and XLSX", async () => {
+test("imports opaque text unchanged, trimming spaces without link or coupon validation", async () => {
   const rows = [
     ["Codex links", "API coupons"],
-    [" chatgpt.com/codex/p/ExampleCase123 ", " CouponCase-456 "],
-    ["https://chatgpt.com/codex/p/ExampleCase123", "CouponCase-456"],
+    [" chatgpt.com/codex/p/ExampleCase123 ", " Coupon + Any/Format "],
+    ["chatgpt.com/codex/p/ExampleCase123", "Coupon + Any/Format"],
   ];
   const expected = [
-    {
-      codex: "https://chatgpt.com/codex/p/ExampleCase123",
-      api: "CouponCase-456",
-    },
+    { codex: "chatgpt.com/codex/p/ExampleCase123", api: "Coupon + Any/Format" },
   ];
   assert.deepEqual(await parse(rows), expected);
   assert.deepEqual(
     readCreditCsv(rows.map((r) => r.join(",")).join("\n")),
     expected,
   );
-  assert.throws(() =>
-    readCreditCsv("Codex links,API coupons\njavascript:alert(1),Coupon123"),
-  );
+  assert.deepEqual(readCreditCsv("Codex links,API coupons\na,b"), [
+    { codex: "a", api: "b" },
+  ]);
 });

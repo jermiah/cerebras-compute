@@ -137,7 +137,11 @@ export default function ClaimPortal({
           value={attendee.coupon}
         />
         {attendee.api_link && (
-          <RewardCard label="OpenAI API" value={attendee.api_link} />
+          <RewardCard
+            label="OpenAI API"
+            kind="coupon"
+            value={attendee.api_link}
+          />
         )}
         {signout}
       </section>
